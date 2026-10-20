@@ -21,7 +21,7 @@ static FATFS filesystem;
 UINT bw; // bytes written
 
 // Describe the wiring:
-static pico_fatfs_spi_config_t sd_config = {
+    pico_fatfs_spi_config_t sd_config = {
     spi0,             // SPI instance
     CLK_SLOW_DEFAULT, // 100 kHz while the card starts
     12500 * KHZ,      // 12.5 MHz after that
@@ -32,7 +32,7 @@ static pico_fatfs_spi_config_t sd_config = {
     true              // pull-ups on DO and DI
 };
 
- void sd_logger_init(void)
+static void sd_logger_init(void)
 {
     spi_init(spi0, 1000 * 1000);               // 1 MHz (slow and safe)
     gpio_set_function(PIN_SCK, GPIO_FUNC_SPI); // spio gets 3 pins
@@ -40,17 +40,15 @@ static pico_fatfs_spi_config_t sd_config = {
     gpio_set_function(PIN_RX, GPIO_FUNC_SPI);
     gpio_init(PIN_CS); // CS: plain output
     gpio_set_dir(PIN_CS, GPIO_OUT);
-    gpio_put(PIN_CS, 1);                        // idle high
-    uint8_t tx = 0xA5;                          // out on TX, in on RX
+    gpio_put(PIN_CS, 1); // idle high
+    uint8_t tx = 0xA5;   // out on TX, in on RX
 }
 
-void halt(void){
+static void halt(void)
+{
     printf("Halting program.\r\n");
-    // while (true)
-    //     tight_loop_contents();
     return; // return to main() and let it loop forever
 }
-
 
 /** Mount the card and open a file for appending.
  *   path:   file name on the card, e.g. "log.csv"
@@ -58,15 +56,15 @@ void halt(void){
  * Returns false if the card or file can't be opened. */
 bool sd_logger_open(const char *path, const char *header)
 {
-/*  uint8_t rx;
-        gpio_put(PIN_CS, 0); // select
-        spi_write_read_blocking(spi0, &tx, &rx, 1);
-        gpio_put(PIN_CS, 1); // release
-        printf("sent 0x%02X, got 0x%02X  %s\r\n",
-               tx, rx, rx == tx ? "match" : "DIFFERENT");
-        tx++; // next bit pattern */
+    /*  uint8_t rx;
+            gpio_put(PIN_CS, 0); // select
+            spi_write_read_blocking(spi0, &tx, &rx, 1);
+            gpio_put(PIN_CS, 1); // release
+            printf("sent 0x%02X, got 0x%02X  %s\r\n",
+                   tx, rx, rx == tx ? "match" : "DIFFERENT");
+            tx++; // next bit pattern */
 
-    // Step 10   File save name
+    // File save name
     pico_fatfs_set_config(&sd_config); // before f_mount
 
     FRESULT fr = f_mount(&filesystem, "", 1);
@@ -87,26 +85,19 @@ bool sd_logger_open(const char *path, const char *header)
  * Returns false if any part didn't reach the card. */
 // bool sd_logger_write(const char *line ,double time_s, float lux, float temp_c)
 bool sd_logger_write(double time_s, float lux, float temp_c)
-
 {
-    // f_write(&log_file, line, strlen(line), &bw);
-    // f_sync(&log_file);
-    // return (bw == strlen(line));
     char line[64];
     int len = snprintf(line, sizeof line,
-                       //                           "%.3f, %.3f, %.7f, %.3f\r\n", time_s, photo_cell_volts, lux, temp_c);
                        "%.3f, %.7f, %.3f\r\n", time_s, lux, temp_c);
 
     printf("%s", line);                 // Serial Monitor
     f_write(&log_file, line, len, &bw); // into the buffer
-    f_sync(&log_file);  
-                    // onto the card
+    f_sync(&log_file);                  // onto the card
 };
 
 /** Close the file and unmount. Safe to remove after. */
-void sd_logger_close(void)
+static void sd_logger_close(void)
 {
     f_close(&log_file);
     f_unmount("");
 };
-

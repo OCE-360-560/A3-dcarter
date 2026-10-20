@@ -43,7 +43,7 @@ int main()
         printf("# SD open failed\r\n");
         halt();
     }
-        
+
     sleep_ms(SAMPLE_PERIOD_MS);
     while (true)
     {
@@ -52,10 +52,8 @@ int main()
         float lux = sensors_read_lux();        // read the photocell once, returns illuminance in lux
         float temp_c = sensors_read_celsius(); // read the LM19 once, returns temperature in
 
-         if (!sd_logger_write(time_s, lux, temp_c))
-        printf("# SD write failed\r\n");
-            sleep_ms(SAMPLE_PERIOD_MS);
-
+        if (!sd_logger_write(time_s, lux, temp_c))
+            printf("# SD write failed\r\n");
+        sleep_ms(SAMPLE_PERIOD_MS);
     }
-
 }
