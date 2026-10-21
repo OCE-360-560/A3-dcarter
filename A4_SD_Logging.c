@@ -26,7 +26,7 @@
 #include "sensors.h"   // photocell and LM19 temperature sensor
 #include "sd_logger.h" // SD card logging
 
-#define SAMPLE_PERIOD_MS 1000
+#define SAMPLE_PERIOD_MS 1500
 
 int main()
 {

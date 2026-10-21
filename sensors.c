@@ -45,7 +45,7 @@ static float lm19_celsius(float temp_volts)
     float temp_lin = (1.8663f - temp_volts) / 0.01169f;
     // LM19 datasheet eq.(3): full range (uses sqrtf from math.h)
     float temp_full = -1481.96f + sqrtf(2.1962e6f + (1.8639f - temp_volts) / 3.88e-6f);
-    float temp_c = temp_lin;
+    float temp_c = temp_full;
     return temp_c;
 }
 
